@@ -1,4 +1,4 @@
-﻿namespace Ripple.API.Modules.Core.Models
+﻿namespace FormBuilder.Modules.Core.Models
 {
     public class AppSecrets
     {

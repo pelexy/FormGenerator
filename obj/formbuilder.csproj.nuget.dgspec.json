@@ -51,6 +51,10 @@
               "target": "Package",
               "version": "[8.0.4, )"
             },
+            "Microsoft.Azure.Cosmos": {
+              "target": "Package",
+              "version": "[3.40.0-preview.1, )"
+            },
             "Polly": {
               "target": "Package",
               "version": "[8.4.0, )"

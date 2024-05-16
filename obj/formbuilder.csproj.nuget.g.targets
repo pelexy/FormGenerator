@@ -4,5 +4,6 @@
     <Import Project="$(NuGetPackageRoot)system.text.json/7.0.3/buildTransitive/net6.0/System.Text.Json.targets" Condition="Exists('$(NuGetPackageRoot)system.text.json/7.0.3/buildTransitive/net6.0/System.Text.Json.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.extensions.apidescription.server/6.0.5/build/Microsoft.Extensions.ApiDescription.Server.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.apidescription.server/6.0.5/build/Microsoft.Extensions.ApiDescription.Server.targets')" />
     <Import Project="$(NuGetPackageRoot)refit/7.0.0/buildTransitive/netstandard2.0/refit.targets" Condition="Exists('$(NuGetPackageRoot)refit/7.0.0/buildTransitive/netstandard2.0/refit.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.azure.cosmos/3.40.0-preview.1/build/netstandard2.0/Microsoft.Azure.Cosmos.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.cosmos/3.40.0-preview.1/build/netstandard2.0/Microsoft.Azure.Cosmos.targets')" />
   </ImportGroup>
 </Project>

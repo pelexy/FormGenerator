@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Ripple.API.Modules.Core
+namespace FormBuilder.Modules.Core
 {
     public interface IApiClientManager
     {

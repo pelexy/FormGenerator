@@ -2,9 +2,7 @@
 
 using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
-using Ripple.API.Modules.Core.Dtos;
-using Ripple.API.Modules.Core.Interfaces;
-using Ripple.API.Modules.Core.Models;
+
 
 namespace Modules.Core.Endpoints
 {

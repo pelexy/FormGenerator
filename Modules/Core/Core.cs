@@ -1,78 +1,76 @@
-﻿using Hangfire;
-using System.Reflection;
-using Ripple.API.Extensions;
-using Ripple.API.Modules.Core.Endpoints;
-using Ripple.API.Modules.Core.Extensions;
-using Ripple.API.Modules.Core.Implementations;
-using Ripple.API.Modules.Core.Interfaces;
-using Ripple.API.Modules.Core.Models;
-using Ripple.API.Modules.Identity;
-using Hangfire.PostgreSql;
-using Ripple.API.Modules.Finance;
-using Ripple.API.Modules.Monnify;
+﻿using FormBuilder.Extensions;
+using FormBuilder.Modules;
+using FormBuilder.Modules.Core;
+using FormBuilder.Modules.Core.Implementations;
+using FormBuilder.Modules.Core.Interfaces;
+using FormBuilder.Modules.Core.Models;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Modules.Form;
+using Modules.Form.Models;
 
-using Ripple.API.Modules.Notification;
-using Modules.Property;
-using Ripple.API.Modules.Paystack;
-
-namespace Ripple.API.Modules.Core
+public class Core : IModule
 {
-    public class Core : IModule
+    public IServiceCollection RegisterModule(IServiceCollection builder, IConfiguration configuration)
     {
-
-
-        public IServiceCollection RegisterModule(IServiceCollection builder, IConfiguration configuration)
+        // Register CosmosClient as a singleton
+        builder.AddSingleton((provider) =>
         {
+            var endpointUri = configuration["CosmosDbSettings:EndpointUri"];
+            var primaryKey = configuration["CosmosDbSettings:PrimaryKey"];
+            var databaseName = configuration["CosmosDbSettings:DatabaseName"];
 
-            //builder.AddAutoMapper(Assembly.GetExecutingAssembly());
-            builder.AddCoreInfrastructure(configuration);
-            builder.Configure<AppConstants>(configuration.GetSection("AppConstants"));
-            builder.Configure<AppSecrets>(configuration.GetSection("AppSecrets"));
-            builder.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.AddHttpClient<IHttpDataClient, HttpDataClient>();
-            var appConstantSection = configuration.GetSection("AppConstants");
-            var appSecretSection = configuration.GetSection("AppSecrets");
-            var appConstant = appConstantSection.Get<AppConstants>();
-            var appSecret = appSecretSection.Get<AppSecrets>();
-            builder.AddSingleton(
-                provider => new AutoMapper.MapperConfiguration(
-                    cfg =>
-                    {
-                        cfg.AddProfile(new MappingProfile(appConstant!));
-                        cfg.AddProfile(new WalletMappingProfile(appConstant!));
-                        cfg.AddProfile(new IdentityMappingProfile(appConstant!));
-                        cfg.AddProfile(new PropertyMappingProfile());
-                        cfg.AddProfile(new MonnifyMappingProfile(appConstant!));
-
-
-                        cfg.AddProfile(new NotificationProfileMapping(appConstant!));
-
-                    }
-                    ).CreateMapper()
-                );
-            builder.AddJWT(configuration);
-            builder.AddPaystackApi(configuration);
-            builder.AddEndpointsApiExplorer();
-            builder.AddSwaggerGen(opts => opts.EnableAnnotations());
-            builder.AddCustomSwaggerGen();
-            var HangfireConnection = configuration.GetConnectionString("HangfireConnection");
-            builder.AddHangfire(x =>
+            var cosmosClientOptions = new CosmosClientOptions
             {
+                ApplicationName = databaseName,
+                ConnectionMode = ConnectionMode.Direct,
+            };
 
-                x.UseSqlServerStorage(HangfireConnection);
-                x.UseFilter(new AutomaticRetryAttribute { Attempts = 2 });
-
-
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
             });
-            builder.AddHangfireServer();
-            return builder;
-        }
-        public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
+
+            var cosmosClient = new CosmosClient(endpointUri, primaryKey, cosmosClientOptions);
+            return cosmosClient;
+        });
+
+        // Register the generic repository with necessary parameters
+        builder.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        builder.AddScoped<IGenericRepository<Programme>>(provider =>
         {
+            var config = provider.GetRequiredService<IConfiguration>();
+            var connectionString = config.GetConnectionString("CosmosDbConnectionString");
+            var databaseName = config.GetValue<string>("CosmosDbSettings:DatabaseName"); // Access database name from config
+            var cosmosClient = provider.GetRequiredService<CosmosClient>(); // Get CosmosClient instance
+            return new GenericRepository<Programme>(cosmosClient, databaseName);
+        });
 
-            return endpoints;
-        }
+        builder.Configure<AppConstants>(configuration.GetSection("AppConstants"));
+        builder.Configure<AppSecrets>(configuration.GetSection("AppSecrets"));
+        builder.AddHttpClient<IHttpDataClient, HttpDataClient>();
 
+        var appConstantSection = configuration.GetSection("AppConstants");
+        var appSecretSection = configuration.GetSection("AppSecrets");
+        var appConstant = appConstantSection.Get<AppConstants>();
+        var appSecret = appSecretSection.Get<AppSecrets>();
 
+        builder.AddSingleton(provider => new AutoMapper.MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile(new MappingProfile(appConstant));
+            cfg.AddProfile(new FormMappingProfile(appConstant));
+        }).CreateMapper());
+
+        builder.AddEndpointsApiExplorer();
+        builder.AddSwaggerGen(opts => opts.EnableAnnotations());
+        builder.AddCustomSwaggerGen();
+
+        return builder;
+    }
+
+    public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        return endpoints;
     }
 }

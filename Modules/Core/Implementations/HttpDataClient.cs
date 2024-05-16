@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text.Json;
-using Ripple.API.Modules.Core.Interfaces;
+using FormBuilder.Modules.Core.Interfaces;
 
-namespace Ripple.API.Modules.Core.Implementations
+namespace FormBuilder.Modules.Core.Implementations
 {
 
     public class HttpDataClient : IHttpDataClient

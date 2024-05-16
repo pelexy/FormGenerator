@@ -1,4 +1,4 @@
-﻿namespace Ripple.API.Modules
+﻿namespace FormBuilder.Modules
 {
     public interface IModule
     {
@@ -8,7 +8,7 @@
 
     public static class ModuleExtensions
     {
-        // this could also be added into the DI container
+
         static readonly List<IModule> registeredModules = new List<IModule>();
 
         public static IServiceCollection RegisterModules(this IServiceCollection services, IConfiguration configuration)

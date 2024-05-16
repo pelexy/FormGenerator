@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Polly;
 using System.Text.Json.Serialization;
+using FormBuilder.Modules.Core;
 
 namespace Ripple.API.Modules.Core
 {

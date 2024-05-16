@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Ripple.API.Modules.Core.Interfaces
+namespace FormBuilder.Modules.Core.Interfaces
 {
     public interface IHttpDataClient
     {

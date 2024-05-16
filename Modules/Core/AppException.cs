@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Ripple.API.Modules.Core
+namespace FormBuilder.Modules.Core
 {
     public class AppException : Exception
     {

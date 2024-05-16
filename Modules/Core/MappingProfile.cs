@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Ripple.API.Modules.Core.Dtos;
-using Ripple.API.Modules.Core.Models;
+using FormBuilder.Modules.Core.Models;
 
-namespace Ripple.API.Modules.Core
+
+namespace FormBuilder.Modules.Core
 {
     public class MappingProfile : Profile
     {
