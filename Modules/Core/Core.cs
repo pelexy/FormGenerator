@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Modules.Form;
 using Modules.Form.Models;
+using Modules.FormApplication;
+using Modules.FormApplication.Models;
 
 public class Core : IModule
 {
@@ -36,16 +38,23 @@ public class Core : IModule
             return cosmosClient;
         });
 
-        // Register the generic repository with necessary parameters
         builder.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         builder.AddScoped<IGenericRepository<Programme>>(provider =>
         {
             var config = provider.GetRequiredService<IConfiguration>();
             var connectionString = config.GetConnectionString("CosmosDbConnectionString");
-            var databaseName = config.GetValue<string>("CosmosDbSettings:DatabaseName"); // Access database name from config
-            var cosmosClient = provider.GetRequiredService<CosmosClient>(); // Get CosmosClient instance
+            var databaseName = config.GetValue<string>("CosmosDbSettings:DatabaseName");
+            var cosmosClient = provider.GetRequiredService<CosmosClient>();
             return new GenericRepository<Programme>(cosmosClient, databaseName);
         });
+        builder.AddScoped<IGenericRepository<Application>>(provider =>
+    {
+        var config = provider.GetRequiredService<IConfiguration>();
+        var connectionString = config.GetConnectionString("CosmosDbConnectionString");
+        var databaseName = config.GetValue<string>("CosmosDbSettings:DatabaseName");
+        var cosmosClient = provider.GetRequiredService<CosmosClient>();
+        return new GenericRepository<Application>(cosmosClient, databaseName);
+    });
 
         builder.Configure<AppConstants>(configuration.GetSection("AppConstants"));
         builder.Configure<AppSecrets>(configuration.GetSection("AppSecrets"));
@@ -60,6 +69,7 @@ public class Core : IModule
         {
             cfg.AddProfile(new MappingProfile(appConstant));
             cfg.AddProfile(new FormMappingProfile(appConstant));
+            cfg.AddProfile(new FormMappingApplicationProfile(appConstant));
         }).CreateMapper());
 
         builder.AddEndpointsApiExplorer();
